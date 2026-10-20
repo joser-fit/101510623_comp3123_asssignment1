@@ -138,4 +138,73 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Update an employee belonging to the logged-in user
+router.put('/:id', employeeValidation, async (req, res) => {
+  if (!/^[a-fA-F0-9]{24}$/.test(req.params.id)) {
+    return res.status(400).json({
+      message: 'Invalid employee ID'
+    });
+  }
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: errors.array().map(error => ({
+        field: error.path,
+        message: error.msg
+      }))
+    });
+  }
+
+  try {
+    const {
+      first_name,
+      last_name,
+      email,
+      position,
+      salary,
+      department,
+      date_of_joining
+    } = req.body;
+
+    const employee = await Employee.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.userId
+      },
+      {
+        $set: {
+          first_name,
+          last_name,
+          email,
+          position,
+          salary,
+          department,
+          date_of_joining
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!employee) {
+      return res.status(404).json({
+        message: 'Employee not found'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Employee updated successfully',
+      employee
+    });
+  } catch (error) {
+    console.error('Employee update failed:', error.message);
+
+    return res.status(500).json({
+      message: 'Unable to update employee'
+    });
+  }
+});
+
 module.exports = router;
