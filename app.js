@@ -1,8 +1,22 @@
 const express = require('express');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const { rateLimit } = require('express-rate-limit');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-app.use(express.json());
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(express.json({ limit: '10kb' }));
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Too many attempts. Try again later.' }
+});
 
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -10,5 +24,7 @@ app.get('/health', (req, res) => {
     message: 'Employee API is running'
   });
 });
+
+app.use('/api/v1/auth', authLimiter, authRoutes);
 
 module.exports = app;
