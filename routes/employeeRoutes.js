@@ -108,4 +108,34 @@ router.get('/', async (req, res) => {
   }
 });
 
+// View one employee belonging to the logged-in user
+router.get('/:id', async (req, res) => {
+  if (!/^[a-fA-F0-9]{24}$/.test(req.params.id)) {
+    return res.status(400).json({
+      message: 'Invalid employee ID'
+    });
+  }
+
+  try {
+    const employee = await Employee.findOne({
+      _id: req.params.id,
+      user: req.userId
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        message: 'Employee not found'
+      });
+    }
+
+    return res.status(200).json({ employee });
+  } catch (error) {
+    console.error('Employee lookup failed:', error.message);
+
+    return res.status(500).json({
+      message: 'Unable to retrieve employee'
+    });
+  }
+});
+
 module.exports = router;
