@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -150,4 +151,32 @@ router.post(
     }
   }
 );
+
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId)
+      .select('_id username email');
+
+    if (!user) {
+      return res.status(401).json({
+        message: 'User account no longer exists'
+      });
+    }
+
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('User lookup failed:', error.message);
+
+    return res.status(500).json({
+      message: 'Unable to retrieve user'
+    });
+  }
+});
+
 module.exports = router;
