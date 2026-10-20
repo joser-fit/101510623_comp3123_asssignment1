@@ -207,4 +207,36 @@ router.put('/:id', employeeValidation, async (req, res) => {
   }
 });
 
+// Delete an employee belonging to the logged-in user
+router.delete('/:id', async (req, res) => {
+  if (!/^[a-fA-F0-9]{24}$/.test(req.params.id)) {
+    return res.status(400).json({
+      message: 'Invalid employee ID'
+    });
+  }
+
+  try {
+    const employee = await Employee.findOneAndDelete({
+      _id: req.params.id,
+      user: req.userId
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        message: 'Employee not found'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Employee deleted successfully'
+    });
+  } catch (error) {
+    console.error('Employee deletion failed:', error.message);
+
+    return res.status(500).json({
+      message: 'Unable to delete employee'
+    });
+  }
+});
+
 module.exports = router;
