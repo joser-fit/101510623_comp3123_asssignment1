@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { rateLimit } = require('express-rate-limit');
 const authRoutes = require('./routes/authRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/v1/auth', authLimiter, authRoutes);
+app.use('/api/v1/employees', employeeRoutes);
 
 module.exports = app;
