@@ -1,0 +1,31 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees/{{employeeId}}
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: beforeRequest
+    code: "pm.variables.set(\"token\", pm.collectionVariables.get(\"token\"));\r
+
+      pm.variables.set(\"employeeId\", pm.collectionVariables.get(\"employeeId\"));"
+    language: text/javascript
+  - type: afterResponse
+    code: "pm.test(\"Deleted employee returns 404\", () => {\r
+
+      \  pm.response.to.have.status(404);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Returns the expected error message\", () => {\r
+
+      \  pm.expect(pm.response.json().message)\r
+
+      \    .to.eql(\"Employee not found\");\r
+
+      });"
+    language: text/javascript
+order: 7000

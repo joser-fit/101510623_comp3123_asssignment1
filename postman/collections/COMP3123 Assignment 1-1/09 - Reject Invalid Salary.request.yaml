@@ -1,0 +1,58 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"first_name\": \"Daniel\",\r
+
+    \  \"last_name\": \"Tesfay\",\r
+
+    \  \"email\": \"daniel.tesfay@example.com\",\r
+
+    \  \"position\": \"Software Developer\",\r
+
+    \  \"salary\": -100,\r
+
+    \  \"department\": \"IT\",\r
+
+    \  \"date_of_joining\": \"2026-10-20\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: beforeRequest
+    code: pm.variables.set("token", pm.collectionVariables.get("token"));
+    language: text/javascript
+  - type: afterResponse
+    code: "pm.test(\"Invalid salary returns 400\", () => {\r
+
+      \  pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Returns a salary validation error\", () => {\r
+
+      \  const data = pm.response.json();\r
+
+      \  pm.expect(data.message).to.eql(\"Validation failed\");\r
+
+      \  pm.expect(data.errors).to.be.an(\"array\");\r
+
+      \  pm.expect(data.errors.some(error =>\r
+
+      \    error.field === \"salary\" &&\r
+
+      \    error.message === \"Salary must be a non-negative number\"\r
+
+      \  )).to.eql(true);\r
+
+      });"
+    language: text/javascript
+order: 8000

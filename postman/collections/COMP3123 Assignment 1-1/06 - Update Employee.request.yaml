@@ -1,0 +1,56 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees/{{employeeId}}
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"first_name\": \"Daniel\",\r
+
+    \  \"last_name\": \"Tesfay\",\r
+
+    \  \"email\": \"daniel.tesfay@example.com\",\r
+
+    \  \"position\": \"Senior Software Developer\",\r
+
+    \  \"salary\": 75000,\r
+
+    \  \"department\": \"IT\",\r
+
+    \  \"date_of_joining\": \"2026-10-20\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: beforeRequest
+    code: "pm.variables.set(\"token\", pm.collectionVariables.get(\"token\"));\r
+
+      pm.variables.set(\"employeeId\", pm.collectionVariables.get(\"employeeId\"));"
+    language: text/javascript
+  - type: afterResponse
+    code: "pm.test(\"Employee update returns 200\", () => {\r
+
+      \  pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Employee details are updated correctly\", () => {\r
+
+      \  const data = pm.response.json();\r
+
+      \  pm.expect(data.message).to.eql(\"Employee updated successfully\");\r
+
+      \  pm.expect(data.employee._id).to.eql(pm.variables.get(\"employeeId\"));\r
+
+      \  pm.expect(data.employee.position).to.eql(\"Senior Software Developer\");\r
+
+      \  pm.expect(data.employee.salary).to.eql(75000);\r
+
+      });"
+    language: text/javascript
+order: 5000

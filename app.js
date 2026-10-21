@@ -26,7 +26,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/api/v1/auth', authLimiter, authRoutes);
-app.use('/api/v1/employees', employeeRoutes);
+app.use('/api/v1/user', authLimiter, authRoutes);
+app.use('/api/v1/emp/employees', employeeRoutes);
 
 module.exports = app;

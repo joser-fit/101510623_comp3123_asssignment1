@@ -1,0 +1,28 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Employee list returns 200\", () => {\r
+
+      \  pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Employee list has a matching count\", () => {\r
+
+      \  const data = pm.response.json();\r
+
+      \  pm.expect(data.employees).to.be.an(\"array\");\r
+
+      \  pm.expect(data.count).to.eql(data.employees.length);\r
+
+      });"
+    language: text/javascript
+order: 2000

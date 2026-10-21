@@ -1,0 +1,5 @@
+$kind: collection
+name: COMP3123 Assignment 1
+variables:
+  token: ""
+  employeeId: ""

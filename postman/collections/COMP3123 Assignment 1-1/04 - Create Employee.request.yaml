@@ -1,0 +1,68 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"first_name\": \"Daniel\",\r
+
+    \  \"last_name\": \"Tesfay\",\r
+
+    \  \"email\": \"daniel.tesfay@example.com\",\r
+
+    \  \"position\": \"Software Developer\",\r
+
+    \  \"salary\": 65000,\r
+
+    \  \"department\": \"IT\",\r
+
+    \  \"date_of_joining\": \"2026-10-20\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Employee creation returns 201\", () => {\r
+
+      \  pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Employee is created with the expected details\", () => {\r
+
+      \  const data = pm.response.json();\r
+
+      \  pm.expect(data.message).to.eql(\"Employee created successfully\");\r
+
+      \  pm.expect(data.employee.first_name).to.eql(\"Daniel\");\r
+
+      \  pm.expect(data.employee.salary).to.eql(65000);\r
+
+      \  pm.expect(data.employee._id).to.match(/^[a-fA-F0-9]{24}$/);\r
+
+      });\r
+
+      \r
+
+      if (pm.response.code === 201) {\r
+
+      \  pm.collectionVariables.set(\r
+
+      \    \"employeeId\",\r
+
+      \    pm.response.json().employee._id\r
+
+      \  );\r
+
+      }"
+    language: text/javascript
+  - type: beforeRequest
+    code: pm.variables.set("token", pm.collectionVariables.get("token"));
+    language: text/javascript
+order: 3000

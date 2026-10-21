@@ -1,0 +1,33 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees?eid={{employeeId}}
+method: DELETE
+queryParams:
+  eid: "{{employeeId}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: beforeRequest
+    code: "pm.variables.set(\"token\", pm.collectionVariables.get(\"token\"));\r
+
+      pm.variables.set(\"employeeId\", pm.collectionVariables.get(\"employeeId\"));"
+    language: text/javascript
+  - type: afterResponse
+    code: "pm.test(\"Employee deletion returns 200\", () => {\r
+
+      \  pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Returns deletion confirmation\", () => {\r
+
+      \  pm.expect(pm.response.json().message)\r
+
+      \    .to.eql(\"Employee deleted successfully\");\r
+
+      });"
+    language: text/javascript
+order: 6000

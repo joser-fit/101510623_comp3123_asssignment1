@@ -1,0 +1,41 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/user/signup
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"username\": \"assignment{{$timestamp}}\",\r
+
+    \  \"email\": \"assignment{{$timestamp}}@example.com\",\r
+
+    \  \"password\": \"AssignmentTest456!\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Signup returns 201\", () => {\r
+
+      \  pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Signup returns user details without a password\", () => {\r
+
+      \  const data = pm.response.json();\r
+
+      \  pm.expect(data.message).to.eql(\"User registered successfully\");\r
+
+      \  pm.expect(data.user.id).to.match(/^[a-fA-F0-9]{24}$/);\r
+
+      \  pm.expect(data.user).to.have.property(\"username\");\r
+
+      \  pm.expect(data.user).to.have.property(\"email\");\r
+
+      \  pm.expect(data.user).not.to.have.property(\"password\");\r
+
+      });"
+    language: text/javascript
+order: 473

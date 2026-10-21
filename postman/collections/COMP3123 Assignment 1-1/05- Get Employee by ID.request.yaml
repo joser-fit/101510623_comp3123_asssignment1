@@ -1,0 +1,35 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees/{{employeeId}}
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: beforeRequest
+    code: "pm.variables.set(\"token\", pm.collectionVariables.get(\"token\"));\r
+
+      pm.variables.set(\"employeeId\", pm.collectionVariables.get(\"employeeId\"));"
+    language: text/javascript
+  - type: afterResponse
+    code: "pm.test(\"Employee lookup returns 200\", () => {\r
+
+      \  pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Returns the requested employee\", () => {\r
+
+      \  const employee = pm.response.json().employee;\r
+
+      \  pm.expect(employee._id).to.eql(pm.variables.get(\"employeeId\"));\r
+
+      \  pm.expect(employee.first_name).to.eql(\"Daniel\");\r
+
+      \  pm.expect(employee.salary).to.eql(65000);\r
+
+      });"
+    language: text/javascript
+order: 4000

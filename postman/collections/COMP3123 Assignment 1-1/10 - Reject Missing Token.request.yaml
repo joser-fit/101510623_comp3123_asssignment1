@@ -1,0 +1,22 @@
+$kind: http-request
+url: http://localhost:3000/api/v1/emp/employees
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Missing token returns 401\", () => {\r
+
+      \  pm.response.to.have.status(401);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Returns the authentication error\", () => {\r
+
+      \  pm.expect(pm.response.json().message)\r
+
+      \    .to.eql(\"A Bearer token is required\");\r
+
+      });"
+    language: text/javascript
+order: 9000

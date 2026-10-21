@@ -1,0 +1,44 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/v1/user/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"fitsum@example.com\",\r
+
+    \  \"password\": \"TestPassword123!\"\r
+
+    }"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Login returns 200\", () => {\r
+
+      \  pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Login returns a token\", () => {\r
+
+      \  const data = pm.response.json();\r
+
+      \  pm.expect(data.message).to.eql(\"Login successful\");\r
+
+      \  pm.expect(data.token).to.be.a(\"string\").and.not.empty;\r
+
+      });\r
+
+      \r
+
+      if (pm.response.code === 200) {\r
+
+      \  pm.collectionVariables.set(\"token\", pm.response.json().token);\r
+
+      }"
+    language: text/javascript
+order: 1000

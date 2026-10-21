@@ -140,6 +140,8 @@ router.get('/:id', async (req, res) => {
 
 // Update an employee belonging to the logged-in user
 router.put('/:id', employeeValidation, async (req, res) => {
+  console.log('Request URL:', JSON.stringify(req.originalUrl));
+  console.log('Route parameters:', req.params);
   if (!/^[a-fA-F0-9]{24}$/.test(req.params.id)) {
     return res.status(400).json({
       message: 'Invalid employee ID'
@@ -208,16 +210,18 @@ router.put('/:id', employeeValidation, async (req, res) => {
 });
 
 // Delete an employee belonging to the logged-in user
-router.delete('/:id', async (req, res) => {
-  if (!/^[a-fA-F0-9]{24}$/.test(req.params.id)) {
+router.delete('/', async (req, res) => {
+  const { eid } = req.query;
+
+  if (typeof eid !== 'string' || !/^[a-fA-F0-9]{24}$/.test(eid)) {
     return res.status(400).json({
-      message: 'Invalid employee ID'
+      message: 'A valid employee ID is required in the eid query parameter'
     });
   }
 
   try {
     const employee = await Employee.findOneAndDelete({
-      _id: req.params.id,
+      _id: eid,
       user: req.userId
     });
 
