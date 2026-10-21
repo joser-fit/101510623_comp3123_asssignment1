@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const { rateLimit } = require('express-rate-limit');
 const authRoutes = require('./routes/authRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const connectDB = require('./db');
 
 const app = express();
 
@@ -24,6 +25,18 @@ app.get('/health', (req, res) => {
     status: 'ok',
     message: 'Employee API is running'
   });
+});
+
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('Database connection failed:', error.message);
+    res.status(503).json({
+      message: 'Database temporarily unavailable'
+    });
+  }
 });
 
 app.use('/api/v1/user', authLimiter, authRoutes);
